@@ -18,4 +18,5 @@ def decrypt(c,k):
 with open("vigenere.txt") as f:
     cipher = f.read().strip()
 
-print(decrypt(cipher, 'EMPEROR'))
+with open("text.txt", "w") as fout:
+    fout.write(decrypt(cipher, 'EMPEROR'))
