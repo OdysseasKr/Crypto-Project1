@@ -4,54 +4,66 @@
 
 from Crypto.Cipher import AES
 from Crypto import Random
+import random
 
 
-def checkAES_ECB(key, message, message2):
+def checkAES_ECB(key, message, dec):
     """Check the avalanche effect on AES with ECB mode."""
     cText = AES_ECB_Encryption(key, message)
+
+    bits2 = asciiToBin(message)  # convert message to bits
+    bits2m = modifyBit(bits2)  # modify one bit
+    message2 = binToAscii(bits2m)  # convert the bits back to a message
+
     cText2 = AES_ECB_Encryption(key, message2)
 
-    # printDiffs(cText, cText2)
-
     cBits = asciiToBin(cText)
     cBits2 = asciiToBin(cText2)
 
-    # printDiffs(cBits, cBits2)
-
     # count the number of different bits in the 2 encrypted messages
     counter = countDiffBits(cBits, cBits2)
-    print "ECB: Number of different bits in the encrypted messages is", counter
+
+    percent = (((1. * counter) / len(cBits)) * 100)
 
     # decrypt the bits
-    originalMessage = AES_ECB_Decryption(key, cText)
-    originalMessage2 = AES_ECB_Decryption(key, cText2)
-    print "Decrypted messages from ECB:"
-    print originalMessage
-    print originalMessage2
+    if (dec):
+        originalMessage = AES_ECB_Decryption(key, cText)
+        originalMessage2 = AES_ECB_Decryption(key, cText2)
+        print "Decrypted messages from ECB:"
+        print originalMessage
+        print originalMessage2
+
+    return percent
 
 
-def checkAES_CBC(key, message, message2, IV):
+def checkAES_CBC(key, message, dec):
     """Check the avalanche effect on AES with CBC mode."""
+    IV = Random.new().read(16)  # length must be 16 bytes
     cText = AES_CBC_Encryption(key, message, IV)
+
+    bits2 = asciiToBin(message)  # convert message to bits
+    bits2m = modifyBit(bits2)  # modify one bit
+    message2 = binToAscii(bits2m)  # convert the bits back to a message
+
     cText2 = AES_CBC_Encryption(key, message2, IV)
 
-    # printDiffs(cText, cText2)
-
     cBits = asciiToBin(cText)
     cBits2 = asciiToBin(cText2)
 
-    # printDiffs(cBits, cBits2)
-
     # count the number of different bits in the 2 encrypted messages
     counter = countDiffBits(cBits, cBits2)
-    print "CBC: Number of different bits in the encrypted messages is", counter
+
+    percent = (((1. * counter) / len(cBits)) * 100)
 
     # decrypt the bits
-    originalMessage = AES_CBC_Decryption(key, cText, IV)
-    originalMessage2 = AES_CBC_Decryption(key, cText2, IV)
-    print "Decrypted messages from CBC:"
-    print originalMessage
-    print originalMessage2
+    if (dec):
+        originalMessage = AES_CBC_Decryption(key, cText, IV)
+        originalMessage2 = AES_CBC_Decryption(key, cText2, IV)
+        print "Decrypted messages from CBC:"
+        print originalMessage
+        print originalMessage2
+
+    return percent
 
 
 def AES_ECB_Encryption(key, message):
@@ -83,7 +95,6 @@ def asciiToBin(text):
     textHex = text.encode('hex')  # Convert Ascii to hex
     textBin = bin(int(textHex, 16))[2:]  # Convert hex to binary, ignore "0b"
     return textBin
-    # ciphertext = bin(int(ciphertext2, 16))[2:]  # encode in hex in python 3.
 
 
 def binToAscii(bits):
@@ -95,15 +106,9 @@ def binToAscii(bits):
 
 def modifyBit(bits):
     """Change the value of a random bit in a series of bits."""
-    # i = Random.choise(bits)  # Select a random bit
-    i = 1
+    i = random.randrange(0, len(bits) - 1)  # select a random bit
     bitsList = list(bits)
-    if (bitsList[i] == '0'):
-        bitsList[i] = '1'
-    else:
-        bitsList[i] = '0'
-    # or if you prefer an oneliner
-    # messageBin[i] = '1' if messageBin[i] == '0' else messageBin[i] = '0'
+    bitsList[i] = '1' if bitsList[i] == '0' else '0'  # change its value
     bitsString = ''.join(bitsList)
     return bitsString
 
@@ -131,17 +136,23 @@ def printDiffs(text1, text2):
     print "Modified: ", text2
 
 
-key = "thiskeyis16bytes"  # length must be 16 bytes
-message = "messageis16bytes"  # length must be 16 bytes
-IV = Random.new().read(16)  # length must be 16 bytes
+msgs = []
+num = 0
+perCBC = 0
+perECB = 0
+key = "theimitationgame"  # length must be 16 bytes
 
-# NOTE: we could throw the 3 lines below in a function... but do we want to?
-bits2 = asciiToBin(message)  # convert message to bits
-bits2m = modifyBit(bits2)  # modify one bit
-message2 = binToAscii(bits2m)  # convert the bits back to a message
+f = open("messages.txt", "r")
 
-# printDiffs(message, message2)
+for line in f:
+    msgs.append(line[:16])
+    num += 1
 
-checkAES_ECB(key, message, message2)
-print ""
-checkAES_CBC(key, message, message2, IV)
+for i in msgs:
+    perCBC += checkAES_CBC(key, i, False)
+    perECB += checkAES_ECB(key, i, False)
+
+print "CBC"
+print "Messages: ", num, "Percentage: ", format((perCBC / num), '.2f'), "%"
+print "ECB"
+print "Messages: ", num, "Percentage: ", format((perECB / num), '.2f'), "%"
