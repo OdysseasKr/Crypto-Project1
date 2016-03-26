@@ -51,7 +51,7 @@ def createS(key):
     S = []
     j = 0
 
-    # Initialize the Array
+    # Initialize the Array with values from 0 to 31 (5bit encoding)
     for i in range(0, 256):
         S.append(i % 32)
 
@@ -98,31 +98,6 @@ text = "Neversendahumantodoamachinesjob"  # The text to encrypt
 
 cText = encrypt(key, text)
 print "Encrypted message: ", cText
-# decrypt the encrypted bits with the cipher so get the real text bits
+# decrypt the encrypted bits with the cipher in order to get the real text bits
 originalText = decrypt(key, cText)
 print "Decrypted message: ", originalText
-
-
-'''
-This is some stuff about 5-bit vs 8-bit encoding
-
-# convert the values 0-32 of the 5-bit encoding to bits
-
-# xor the encrypted bits with the text
-# make the key the length of the message
-for i in range(0, 4):
-    keyInBits += keyInBits
-for i in range(0, 295):
-    keyInBits += keyInBits[i]
-
-Kb = ''.join(Ka)
-Kc = enc.string_xor(Kb, keyInBits)
-print Kc
-print enc.text_dec(Kb)
-
-# print enc.text_dec(Kb)
-
-# Ka = []
-# for i in K:
-#    Ka.append("{0:08b}".format(i))
-'''
