@@ -7,30 +7,29 @@ import lfsr_project as s
 
 
 def lfsr1(F, Pb, Cb, Ciphertext):
+
     """Crack the first LFSR."""
-    K = s.text_enc(Pb, Cb)
-    # Solve the matrix equation, K is part of the Keystream 10-19 bits
+    K = list(s.string_xor(Pb, Cb))
+    K = [int(k) for k in K]
 
-    # BERLEKAMP MASSEY ATTACK on the n bits of K and the F so we get the seed!
-    S = [0, 1]
-
-    K = s.lfsr(S, F, pow(2, len(F)) - 1, 1)  # Whole Keystream in bits
-    # The third argument is the length of the output keystream which can be
-    # either the maximum length (2^n - 1 bits) or the length of plaintext
-    # with which it will be xored
+    # This gets the stream that will be used to decrypt the message
+    # Using the reverse K, it gets the lfsr keystream.
+    # The number of bits is: (period of lfsr) - (starting position of K) + (no of bits of the ciphertext)
+    S = s.lfsr(K[::-1], F, 1023 - 10 + len(Ciphertext) * 5, 1)
 
     C = s.text_enc(Ciphertext)  # Cipher in bits
 
     # K must be at least the same size as C
 
     # Xor the keystream and the cipher and we get the plaintext
-    P = s.string_xor(K[:len(C)], C)
+    # Use the part of the stream that starts on (period of lfsr) - (starting position of K)
+    P = s.string_xor(S[1013:], C)
     P = s.text_dec(P)
     print P
     return P
 
 
-def lfsr2(F1, S1, K1, F2, Pb2, Cb2, Ciphertext2):
+def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
     """Crack the two LFSRs."""
     K3b = s.text_enc(Pb2, Cb2)
     # Solve the matrix, get part of the Keystream 3 10-29 bits
@@ -54,8 +53,8 @@ def lfsr2(F1, S1, K1, F2, Pb2, Cb2, Ciphertext2):
     return P
 
 F = [0, 0, 0, 0, 0, 1, 1, 0, 1, 1]  # Feedback Function
-Pb = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1])  # Part of plaintext in bits
-Cb = np.array([1, 0, 0, 1, 0, 1, 0, 0, 0, 0])  # Part of ciphertext in bits
+Pb = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # Part of plaintext in bits
+Cb = [1, 0, 0, 1, 0, 1, 0, 0, 0, 0]  # Part of ciphertext in bits
 Ciphertext = "i!))aiszwykqnfcyc!?secnncvch"  # Cipher text
 
 F2 = [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
@@ -63,6 +62,7 @@ F2 = [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
 Pb2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1]
 Cb2 = [1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0]
 Ciphertext2 = "(fndappt)iy.a)jyyyzp..(cuw?dsu.bake()wuka-)bnndk"
-
+print "LFSR 1:"
 lfsr1(F, Pb, Cb, Ciphertext)
-lfsr2(F, F2, Pb2, Cb2, Ciphertext2)
+print "LFSR 2:"
+#lfsr2(F, F2, Pb2, Cb2, Ciphertext2)
