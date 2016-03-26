@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """Cracking LFSR."""
 
@@ -25,7 +25,7 @@ def lfsr1(F, Pb, Cb, Ciphertext):
     # Use the part of the stream that starts on (period of lfsr) - (starting position of K)
     P = s.string_xor(S[1013:], C)
     P = s.text_dec(P)
-    print P
+    print(P)
     return P
 
 
@@ -35,7 +35,7 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
     # Solve the matrix, get part of the Keystream 3 10-29 bits
 
     K2b = s.string_xor(K1[10:29], K3b)  # get 10-29 bits of K2
-    print K2b
+    print(K2b)
     # BERLEKAMP ATTACK ON K2b and F2 so we get S2
     S2 = [0, 1]
 
@@ -49,7 +49,7 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
 
     P = s.text_dec(P)
 
-    print P
+    print(P)
     return P
 
 F = [0, 0, 0, 0, 0, 1, 1, 0, 1, 1]  # Feedback Function
@@ -62,7 +62,7 @@ F2 = [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
 Pb2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1]
 Cb2 = [1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0]
 Ciphertext2 = "(fndappt)iy.a)jyyyzp..(cuw?dsu.bake()wuka-)bnndk"
-print "LFSR 1:"
+print("LFSR 1:")
 lfsr1(F, Pb, Cb, Ciphertext)
-print "LFSR 2:"
+print("LFSR 2:")
 #lfsr2(F, F2, Pb2, Cb2, Ciphertext2)
