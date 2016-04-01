@@ -34,8 +34,11 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
     K3b = s.text_enc(Pb2, Cb2)
     # Solve the matrix, get part of the Keystream 3 10-29 bits
 
-    K2b = s.string_xor(K1[10:29], K3b)  # get 10-29 bits of K2
-    print(K2b)
+    for i in range(1024):
+        S1 = [int(d) for d in i[2:]]
+        K1 = s.lfsr(S1, F1, pow(2, 30, 1)
+        K2b = s.string_xor(K1[10:29], K3b)  # get 10-29 bits of K2
+        print(K2b)
     # BERLEKAMP ATTACK ON K2b and F2 so we get S2
     S2 = [0, 1]
 
