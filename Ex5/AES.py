@@ -106,7 +106,7 @@ def binToAscii(bits):
 
 def modifyBit(bits):
     """Change the value of a random bit in a series of bits."""
-    i = random.randrange(0, len(bits) - 1)  # select a random bit
+    i = random.randrange(1, len(bits) - 1)  # select a random bit
     bitsList = list(bits)
     bitsList[i] = '1' if bitsList[i] == '0' else '0'  # change its value
     bitsString = ''.join(bitsList)
