@@ -14,15 +14,19 @@ def lfsr1(F, Pb, Cb, Ciphertext):
 
     # This gets the stream that will be used to decrypt the message
     # Using the reverse K, it gets the lfsr keystream.
-    # The number of bits is: (period of lfsr) - (starting position of K) + (no of bits of the ciphertext)
+    # The number of bits is: (period of lfsr) - (starting position of K) +
+    # (no of bits of the ciphertext)
     S = s.lfsr(K[::-1], F, 1023 - 10 + len(Ciphertext) * 5, 1)
+    print(K)
+    print(S[1013:])
 
     C = s.text_enc(Ciphertext)  # Cipher in bits
 
     # K must be at least the same size as C
 
     # Xor the keystream and the cipher and we get the plaintext
-    # Use the part of the stream that starts on (period of lfsr) - (starting position of K)
+    # Use the part of the stream that starts on
+    # (period of lfsr) - (starting position of K)
     P = s.string_xor(S[1013:], C)
     P = s.text_dec(P)
     print(P)
@@ -31,29 +35,59 @@ def lfsr1(F, Pb, Cb, Ciphertext):
 
 def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
     """Crack the two LFSRs."""
-    K3b = s.text_enc(Pb2, Cb2)
-    # Solve the matrix, get part of the Keystream 3 10-29 bits
-
-    for i in range(1024):
-        S1 = [int(d) for d in i[2:]]
-        K1 = s.lfsr(S1, F1, pow(2, 30, 1)
-        K2b = s.string_xor(K1[10:29], K3b)  # get 10-29 bits of K2
-        print(K2b)
-    # BERLEKAMP ATTACK ON K2b and F2 so we get S2
-    S2 = [0, 1]
-
-    K2 = s.lfsr(S2, F2, pow(2, len(F2)) - 1, 1)
-
-    K3 = s.string_xor(K1, K2)  # get the full K3
+    K3b = s.string_xor(Pb2, Cb2)
 
     C = s.text_enc(Ciphertext2)
 
-    P = s.string_xor(K3, C)
+    f = open("lfsr.txt", "w")
+    f2 = open("K1.txt", "w")
 
-    P = s.text_dec(P)
+    for i in range(1024):
+        # Convert i to binary seed
+        b = bin(i)
+        S1 = [int(d) for d in b[2:]]
+        while (len(S1)<10):
+            S1 = [0] + S1
 
-    print(P)
+        # Calculate stream from lfsr-10 using S1
+        F1copy = F1[:]
+        K1 = s.lfsr(S1, F1copy, len(C), 1)
+        f2.write(str(K1))
+        f2.write("\n")
+
+        K2b = s.string_xor(K1[10:30], K3b)  # get 10-29 bits of K2
+        K2b = [int(d) for d in K2b[:16]]
+
+        S2 = reverseLfsr(K2b[::-1], 9, 0)
+
+        F2copy = F2[:]
+        K2 = s.lfsr(S2, F2copy, len(C), 1)
+
+
+        K3 = s.string_xor(K1, K2)
+        P = s.string_xor(K3, C)
+        P = s.text_dec(P)
+
+        f.write(P)
+        f.write("\n")
+
     return P
+
+def reverseLfsr(state, n, print):
+    for i in range(n):
+        tmp = state[0] ^ state[8]
+        tmp = tmp ^ state[7]
+        tmp = tmp ^ state[3]
+        tmp = tmp ^ state[2]
+        state = state[1:]
+        state.append(tmp)
+
+        if print == 1:
+            print("state: " + str(i))
+            print(state)
+
+    return state
+
 
 F = [0, 0, 0, 0, 0, 1, 1, 0, 1, 1]  # Feedback Function
 Pb = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # Part of plaintext in bits
@@ -66,6 +100,8 @@ Pb2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1]
 Cb2 = [1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0]
 Ciphertext2 = "(fndappt)iy.a)jyyyzp..(cuw?dsu.bake()wuka-)bnndk"
 print("LFSR 1:")
-lfsr1(F, Pb, Cb, Ciphertext)
+Fcopy = F[:]
+lfsr1(Fcopy, Pb, Cb, Ciphertext)
 print("LFSR 2:")
-#lfsr2(F, F2, Pb2, Cb2, Ciphertext2)
+Fcopy = F[:]
+lfsr2(Fcopy, F2, Pb2, Cb2, Ciphertext2)
