@@ -10,7 +10,7 @@ def encrypt(key, text):
     # keyInBits = enc.text_enc(key)  # The key in bits with 5bit encoding
 
     textInBits = enc.text_enc(text)  # The text in bits with 5bit encoding
-    plen = len(textInBits)  # 155 bits (31*5bits)
+    plen = len(text)  # 31 characters
 
     S = createS(key)
     # S is now filled with random values of 5bit encoding
@@ -19,7 +19,7 @@ def encrypt(key, text):
     Kbits = convertValuesToBits(K)
 
     # encrypt the bits of the text with the bits of the cipher
-    cBits = enc.string_xor(textInBits, Kbits[:155])
+    cBits = enc.string_xor(textInBits, Kbits)
 
     # this is what is looks like in a string format
     cText = enc.text_dec(cBits)
@@ -30,7 +30,7 @@ def encrypt(key, text):
 def decrypt(key, cipher):
     """Decrypt the cipher with the key with RC4."""
     cipherInBits = enc.text_enc(cipher)  # The text in bits with 5bit encoding
-    plen = len(cipherInBits)  # 155 bits (31*5bits)
+    plen = len(cipher)  # 31 characters
 
     S = createS(key)
     # S is now filled with random values of 5bit encoding
@@ -38,7 +38,7 @@ def decrypt(key, cipher):
     # K is now filled with random values of 5bit encoding
     Kbits = convertValuesToBits(K)
 
-    originalBits = enc.string_xor(cipherInBits, Kbits[:155])
+    originalBits = enc.string_xor(cipherInBits, Kbits)
 
     # this should be the original text
     originalText = enc.text_dec(originalBits)
