@@ -40,7 +40,6 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
     C = s.text_enc(Ciphertext2)
 
     f = open("lfsr.txt", "w")
-    f2 = open("K1.txt", "w")
 
     for i in range(1024):
         # Convert i to binary seed
@@ -52,13 +51,11 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
         # Calculate stream from lfsr-10 using S1
         F1copy = F1[:]
         K1 = s.lfsr(S1, F1copy, len(C), 1)
-        f2.write(str(K1))
-        f2.write("\n")
 
         K2b = s.string_xor(K1[10:30], K3b)  # get 10-29 bits of K2
         K2b = [int(d) for d in K2b[:16]]
 
-        S2 = reverseLfsr(K2b[::-1], 9, 0)
+        S2 = reverseLfsr(K2b[::-1], 10, 0)
 
         F2copy = F2[:]
         K2 = s.lfsr(S2, F2copy, len(C), 1)
