@@ -2,65 +2,65 @@
 
 """This is an RC4 Implementation with 5-bit encoding."""
 
-import lfsr_project as enc
+import lfsr_project as s
 
 
 def encrypt(key, text):
     """Encrypt the given text with the key with RC4."""
-    # keyInBits = enc.text_enc(key)  # The key in bits with 5bit encoding
-
-    textInBits = enc.text_enc(text)  # The text in bits with 5bit encoding
+    keyBits = s.text_enc(key)  # The key in bits with 5bit encoding
+    textInBits = s.text_enc(text)  # The text in bits with 5bit encoding
     plen = len(text)  # 31 characters
 
-    S = createS(key)
+    S = createS(keyBits)
     # S is now filled with random values of 5bit encoding
     K = outputK(S, plen)
     # K is now filled with random values of 5bit encoding
     Kbits = convertValuesToBits(K)
 
     # encrypt the bits of the text with the bits of the cipher
-    cBits = enc.string_xor(textInBits, Kbits)
+    cBits = s.string_xor(textInBits, Kbits[:155])
 
     # this is what is looks like in a string format
-    cText = enc.text_dec(cBits)
+    cText = s.text_dec(cBits)
 
     return cText
 
 
 def decrypt(key, cipher):
     """Decrypt the cipher with the key with RC4."""
-    cipherInBits = enc.text_enc(cipher)  # The text in bits with 5bit encoding
+    keyBits = s.text_enc(key)  # The key in bits with 5bit encoding
+    cipherInBits = s.text_enc(cipher)  # The text in bits with 5bit encoding
     plen = len(cipher)  # 31 characters
 
-    S = createS(key)
+    S = createS(keyBits)
     # S is now filled with random values of 5bit encoding
     K = outputK(S, plen)
     # K is now filled with random values of 5bit encoding
     Kbits = convertValuesToBits(K)
 
-    originalBits = enc.string_xor(cipherInBits, Kbits)
+    originalBits = s.string_xor(cipherInBits, Kbits[:155])
 
     # this should be the original text
-    originalText = enc.text_dec(originalBits)
+    originalText = s.text_dec(originalBits)
 
     return originalText
 
 
-def createS(key):
+def createS(keyBits):
     """Create the S array."""
     S = []
     j = 0
 
-    # Initialize the Array with values from 0 to 31 (5bit encoding)
+    # Initialize the Array with values from 0 to 256)
     for i in range(0, 256):
-        S.append(i % 32)
+        S.append(i % 256)
 
     # Create the Array
-    # add the index j with the value of S[i] and the 5-bit encoding value
-    # of the letter in the position i % keylen of the key
+    # add the index j with the value of S[i] and a bit of a letter
+    # in the position i % keylen of the key in bits (155)
     # and mod it with 256
     for i in range(0, 256):
-        j = (j + S[i] + int(enc.text_enc(key[i % len(key)]), 2)) % 256
+        j = (j + S[i] + int(keyBits[i % len(keyBits)], 2)) % 256
         S[i], S[j] = S[j], S[i]  # now swap the values of S[i] and S[j]
 
     return S
