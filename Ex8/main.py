@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#Its 676767
+#It's 676767
 import crypt
 with open("password.txt") as f:
     cipher = f.read().strip()[5:-19]

@@ -56,6 +56,9 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
         K2b = [int(d) for d in K2b[:16]]
 
         S2 = reverseLfsr(K2b[::-1], 10, 0)
+        print("SEED: " + str(S2))
+        print("PART: " + str(K2b))
+        print("STREAM: " + str(K2))
 
         F2copy = F2[:]
         K2 = s.lfsr(S2, F2copy, len(C), 1)
