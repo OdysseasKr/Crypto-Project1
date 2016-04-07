@@ -55,10 +55,7 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
         K2b = s.string_xor(K1[10:30], K3b)  # get 10-29 bits of K2
         K2b = [int(d) for d in K2b[:16]]
 
-        S2 = reverseLfsr(K2b[::-1], 10, 0)
-        print("SEED: " + str(S2))
-        print("PART: " + str(K2b))
-        print("STREAM: " + str(K2))
+        S2 = reverseLfsr(K2b[::-1], 10, 1)
 
         F2copy = F2[:]
         K2 = s.lfsr(S2, F2copy, len(C), 1)
@@ -68,12 +65,13 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
         P = s.string_xor(K3, C)
         P = s.text_dec(P)
 
-        f.write(P)
-        f.write("\n")
+        if (K3[10:30] == K3b):
+            f.write(P)
+            f.write("\n")
 
     return P
 
-def reverseLfsr(state, n, print):
+def reverseLfsr(state, n, p):
     for i in range(n):
         tmp = state[0] ^ state[8]
         tmp = tmp ^ state[7]
@@ -82,7 +80,7 @@ def reverseLfsr(state, n, print):
         state = state[1:]
         state.append(tmp)
 
-        if print == 1:
+        if p == 0:
             print("state: " + str(i))
             print(state)
 
