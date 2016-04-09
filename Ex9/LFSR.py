@@ -55,12 +55,14 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
         K2b = s.string_xor(K1[10:30], K3b)  # get 10-29 bits of K2
         K2b = [int(d) for d in K2b[:16]]
 
+        # Find the seed for the second lfsr
         S2 = reverseLfsr(K2b[::-1], 10, 1)
 
+        # Kind the second keystream
         F2copy = F2[:]
         K2 = s.lfsr(S2, F2copy, len(C), 1)
 
-
+        # Calculate keystream and plaintext
         K3 = s.string_xor(K1, K2)
         P = s.string_xor(K3, C)
         P = s.text_dec(P)
@@ -72,9 +74,13 @@ def lfsr2(F1, F2, Pb2, Cb2, Ciphertext2):
     return P
 
 def reverseLfsr(state, n, p):
+    """
+    Runs the reverse lfsr-16 in order to find the seed, given the n-th state
+    """
     for i in range(n):
         tmp = state[0] ^ state[8]
         tmp = tmp ^ state[7]
+        tmp = tmp ^ state[6]
         tmp = tmp ^ state[3]
         tmp = tmp ^ state[2]
         state = state[1:]
@@ -92,7 +98,7 @@ Pb = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # Part of plaintext in bits
 Cb = [1, 0, 0, 1, 0, 1, 0, 0, 0, 0]  # Part of ciphertext in bits
 Ciphertext = "i!))aiszwykqnfcyc!?secnncvch"  # Cipher text
 
-F2 = [0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
+F2 = [0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
 # Second Feedback Function
 Pb2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1]
 Cb2 = [1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0]
