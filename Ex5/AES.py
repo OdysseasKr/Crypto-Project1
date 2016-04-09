@@ -8,7 +8,9 @@ import random
 
 
 def checkAES_ECB(key, message, dec):
-    """Check the avalanche effect on AES with ECB mode."""
+    """Check the avalanche effect on AES with ECB mode.
+       dec: If true, decrypt ciphertext and print original message
+    """
     cText = AES_ECB_Encryption(key, message)
 
     bits2 = asciiToBin(message)  # convert message to bits
@@ -37,7 +39,9 @@ def checkAES_ECB(key, message, dec):
 
 
 def checkAES_CBC(key, message, dec):
-    """Check the avalanche effect on AES with CBC mode."""
+    """Check the avalanche effect on AES with CBC mode.
+       dec: If true, decrypt ciphertext and print original message
+    """
     IV = Random.new().read(16)  # length must be 16 bytes
     cText = AES_CBC_Encryption(key, message, IV)
 
