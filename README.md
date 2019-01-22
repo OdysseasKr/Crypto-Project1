@@ -1,4 +1,4 @@
-# Implementations and practises in basic cryptographic algorithms.
+# Implementations and exercises in basic cryptographic algorithms.
 
 **Ex2** - Implementation of the RC4 algorithm.
 
